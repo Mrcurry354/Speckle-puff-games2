@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower Defense Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Enhanced Tower Defense</h1>
+    <div id="ui">
+        <p>Money: <span id="money">100</span> | Lives: <span id="lives">10</span> | Wave: <span id="wave">1</span></p>
+        <button onclick="startWave()">Start Wave</button>
+    </div>
+    <canvas id="gameCanvas"></canvas>
+    <script src="main.js"></script>
+</body>
+</html>
