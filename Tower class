@@ -1,0 +1,32 @@
+import { Bullet } from "./bullet.js";
+
+export class Tower {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.range = 80;
+        this.fireRate = 50;
+        this.damage = 10;
+        this.timer = 0;
+    }
+
+    update(enemies, bullets) {
+        this.timer++;
+        if (this.timer >= this.fireRate) {
+            let target = enemies.find(e => this.inRange(e));
+            if (target) bullets.push(new Bullet(this, target));
+            this.timer = 0;
+        }
+    }
+
+    inRange(enemy) {
+        let dx = enemy.x - this.x;
+        let dy = enemy.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy) < this.range;
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(this.x, this.y, 40, 40);
+    }
+}
