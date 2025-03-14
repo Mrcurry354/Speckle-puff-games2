@@ -1,0 +1,5 @@
+import { startWave } from "./game.js";
+import { setupUI } from "./ui.js";
+
+// Initialize Game
+setupUI();
