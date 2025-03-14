@@ -1,0 +1,99 @@
+import { Tower } from "./tower.js";
+import { Enemy } from "./enemy.js";
+import { Bullet } from "./bullet.js";
+import { updateUI, money, setMoney, lives, setLives, wave, setWave } from "./ui.js";
+
+// Select Canvas
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = 600;
+canvas.height = 400;
+
+// Game Variables
+const gridSize = 40;
+const towers = [];
+const enemies = [];
+const bullets = [];
+let waveActive = false;
+const enemyPath = [
+    { x: 0, y: 160 }, { x: 80, y: 160 }, { x: 160, y: 160 },
+    { x: 160, y: 240 }, { x: 320, y: 240 }, { x: 480, y: 240 },
+    { x: 480, y: 160 }, { x: 600, y: 160 }
+];
+
+// Handle Tower Placement
+canvas.addEventListener("click", (event) => {
+    let x = Math.floor(event.offsetX / gridSize) * gridSize;
+    let y = Math.floor(event.offsetY / gridSize) * gridSize;
+    if (money >= 50 && !towers.some(t => t.x === x && t.y === y)) {
+        towers.push(new Tower(x, y));
+        setMoney(money - 50);
+        updateUI();
+    }
+});
+
+// Start Wave Function
+export function startWave() {
+    if (waveActive) return;
+    waveActive = true;
+    setWave(wave + 1);
+    updateUI();
+    let enemyCount = wave * 5;
+
+    let interval = setInterval(() => {
+        let type = Math.random() > 0.5 ? "fast" : "tank";
+        enemies.push(new Enemy(type, enemyPath));
+        enemyCount--;
+
+        if (enemyCount <= 0) {
+            clearInterval(interval);
+            setTimeout(() => {
+                waveActive = false;
+                setMoney(money + 50);
+                updateUI();
+            }, 3000);
+        }
+    }, 1000);
+}
+
+// Game Loop
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Path
+    ctx.strokeStyle = "yellow";
+    ctx.beginPath();
+    enemyPath.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+
+    // Update & Draw Enemies
+    enemies.forEach((enemy, index) => {
+        if (enemy.update() || enemy.health <= 0) {
+            if (enemy.health <= 0) setMoney(money + 10);
+            enemies.splice(index, 1);
+            updateUI();
+        }
+        enemy.draw(ctx);
+    });
+
+    // Update & Draw Towers
+    towers.forEach(tower => {
+        tower.update(enemies, bullets);
+        tower.draw(ctx);
+    });
+
+    // Update & Draw Bullets
+    bullets.forEach((bullet, index) => {
+        if (bullet.update()) bullets.splice(index, 1);
+        bullet.draw(ctx);
+    });
+
+    if (lives > 0) requestAnimationFrame(gameLoop);
+    else alert("Game Over!");
+}
+
+// Start Game Loop
+gameLoop();
